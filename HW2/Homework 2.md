@@ -463,6 +463,8 @@ Similar to (e), given $n=10000$, the probability is $1-(1-\frac{1}{10000})^{1000
 
 output:
 
+![ch5_q2_g](/Users/wangsiping/Documents/GitHub/Stanford_STATS_202/HW2/ch5_q2_g.png)
+
 The probability decreases quickly as $n$ increases, and seems to converge to around 0.63. 
 
 **(h)**
@@ -478,11 +480,437 @@ the probability may finally reach $1-\frac{1}{e}$ as $n\to\infty$.
 
 ## Problem 7
 
+**(a)**
 
+```R
+> library(ISLR)
+> attach(Default)
+> set.seed(1)
+> fit.glm=glm(default~income+balance, data=Default, family="binomial")
+> summary(fit.glm)
+```
+
+output:
+
+```R
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.4725  -0.1444  -0.0574  -0.0211   3.7245  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -1.154e+01  4.348e-01 -26.545  < 2e-16 ***
+income       2.081e-05  4.985e-06   4.174 2.99e-05 ***
+balance      5.647e-03  2.274e-04  24.836  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 2920.6  on 9999  degrees of freedom
+Residual deviance: 1579.0  on 9997  degrees of freedom
+AIC: 1585
+```
+
+**(b)**
+
+```R
+> train=sample(dim(Default)[1], dim(Default)[1]/2)
+> fit.glm=glm(default~income+balance, data=Default, family="binomial", subset=train)
+> summary(fit.glm)
+```
+
+output:
+
+```R
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.3583  -0.1268  -0.0475  -0.0165   3.8116  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -1.208e+01  6.658e-01 -18.148   <2e-16 ***
+income       1.858e-05  7.573e-06   2.454   0.0141 *  
+balance      6.053e-03  3.467e-04  17.457   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1457.0  on 4999  degrees of freedom
+Residual deviance:  734.4  on 4997  degrees of freedom
+AIC: 740.4
+
+Number of Fisher Scoring iterations: 8
+```
+
+```R
+> probs=predict(fit.glm, newdata=Default[-train,], type="response")
+> pred.glm=rep("No", length(probs))
+> pred.glm[probs>0.5]="Yes"
+> mean(pred.glm!=Default[-train,]$default)
+```
+
+output: 
+
+```R
+[1] 0.0286
+```
+
+**(c)**
+
+```R
+> train=sample(dim(Default)[1], dim(Default)[1]/2)
+> fit.glm=glm(default~income+balance, data=Default, family="binomial", subset=train)
+> probs=predict(fit.glm, newdata=Default[-train,], type="response")
+> pred.glm=rep("No", length(probs))
+> pred.glm[probs>0.5]="Yes"
+> mean(pred.glm != Default[-train,]$default)
+[1] 0.0236
+> train=sample(dim(Default)[1], dim(Default)[1]/2)
+> fit.glm=glm(default~income+balance, data=Default, family="binomial", subset=train)
+> probs=predict(fit.glm, newdata=Default[-train,], type="response")
+> pred.glm=rep("No", length(probs))
+> pred.glm[probs>0.5]="Yes"
+> mean(pred.glm != Default[-train,]$default)
+[1] 0.028
+> train=sample(dim(Default)[1], dim(Default)[1]/2)
+> fit.glm=glm(default~income+balance, data=Default, family="binomial", subset=train)
+> probs=predict(fit.glm, newdata=Default[-train,], type="response")
+> pred.glm=rep("No", length(probs))
+> pred.glm[probs>0.5]="Yes"
+> mean(pred.glm != Default[-train,]$default)
+[1] 0.0268
+```
+
+We see that the test error rate can be variable, depending on which observations are included in the training set and which observations are included in the validation set.
+
+**(d)**
+
+```R
+> train=sample(dim(Default)[1], dim(Default)[1]/2)
+> fit.glm=glm(default~income+balance+student, data=Default, family="binomial", subset=train)
+> pred.glm=rep("No", length(probs))
+> probs=predict(fit.glm, newdata=Default[-train,], type="response")
+> pred.glm[probs>0.5]="Yes"
+> mean(pred.glm != Default[-train,]$default)
+```
+
+output:
+
+```R
+[1] 0.0264
+```
+
+Including a dumming variable for `student` does not lead to a reduction in the test error rate. 
 
 ## Problem 8
 
+**(a)**
+
+```R
+> set.seed(1)
+> attach(Default)
+> fit.glm=glm(default~income+balance, data=Default, family="binomial")
+> summary(fit.glm)
+```
+
+output: 
+
+```R
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.4725  -0.1444  -0.0574  -0.0211   3.7245  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -1.154e+01  4.348e-01 -26.545  < 2e-16 ***
+income       2.081e-05  4.985e-06   4.174 2.99e-05 ***
+balance      5.647e-03  2.274e-04  24.836  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 2920.6  on 9999  degrees of freedom
+Residual deviance: 1579.0  on 9997  degrees of freedom
+AIC: 1585
+
+Number of Fisher Scoring iterations: 8
+```
+
+**(b)**
+
+```R
+> boot.fn=function(data, index) {
++ fit=glm(default~income+balance, data=data, family="binomial", subset=index)
++ return(coef(fit))
++ }
+```
+
+**(c)**
+
+```R
+> library(boot)
+> boot(Default, boot.fn, 1000)
+```
+
+output: 
+
+```R
+Bootstrap Statistics :
+         original        bias     std. error
+t1* -1.154047e+01 -8.008379e-03 4.239273e-01
+t2*  2.080898e-05  5.870933e-08 4.582525e-06
+t3*  5.647103e-03  2.299970e-06 2.267955e-04
+```
+
+**(d)**
+
+Using the `glm()` function and `boot`, we can obtain close estimated standard errors. 
+
 ## Problem 9
+
+**(a)**
+
+n is $y$, p is $x$. The model is
+$$
+y=x-2x^2+\epsilon.
+$$
+**(b)**
+
+```R
+plot(x, y)
+```
+
+output: 
+
+![ch5_q8_b](/Users/wangsiping/Documents/GitHub/Stanford_STATS_202/HW2/ch5_q8_b.png)
+
+**(c)**
+
+```R
+> library(boot)
+> set.seed(1)
+> Data=data.frame(x, y)
+> fit.glm.1=glm(y~x)
+> cv.glm(Data, fit.glm.1)$delta[1]
+[1] 5.890979
+> fit.glm.2=glm(y~poly(x, 2))
+> cv.glm(Data, fit.glm.2)$delta[1]
+[1] 1.086596
+> fit.glm.3=glm(y~poly(x, 3))
+> cv.glm(Data, fit.glm.3)$delta[1]
+[1] 1.102585
+> fit.glm.4=glm(y~poly(x, 4))
+> cv.glm(Data, fit.glm.4)$delta[1]
+[1] 1.114772
+```
+
+**(d)**
+
+```R
+> for(i in 1:4)
++ print(cv.glm(Data, glm(y~poly(x, i)))$delta[1])
+[1] 5.890979
+[1] 1.086596
+[1] 1.102585
+[1] 1.114772
+```
+
+The result is the same. This is because there is no sampling involved in LOOCV; the model is trained with the same observations for each cross validation test.
+
+**(e)**
+
+The model $Y=\beta_0+\beta_1X+\beta_2X^2+\epsilon$ had the smallest LOOCV error. This is easy to expect since we can saw in (b) that the relation between $x$ and $y$ is quadratic. 
+
+**(f)**
+
+```R
+> summary(fit.glm.4)
+```
+
+output: 
+
+```R
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.8914  -0.5244   0.0749   0.5932   2.7796  
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  -1.8277     0.1041 -17.549   <2e-16 ***
+poly(x, 4)1   2.3164     1.0415   2.224   0.0285 *  
+poly(x, 4)2 -21.0586     1.0415 -20.220   <2e-16 ***
+poly(x, 4)3  -0.3048     1.0415  -0.293   0.7704    
+poly(x, 4)4  -0.4926     1.0415  -0.473   0.6373    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for gaussian family taken to be 1.084654)
+
+    Null deviance: 552.21  on 99  degrees of freedom
+Residual deviance: 103.04  on 95  degrees of freedom
+AIC: 298.78
+
+Number of Fisher Scoring iterations: 2
+```
+
+It can be seen from the summary above that the linear and quadratic terms are statistically significant and that the cubic and 4th degree terms are not statistically significant. This agree strongly with our cross-validation results which were minimum for the quadratic model.
 
 ## Problem 10
 
+**(a)**
+
+```R
+> library(MASS)
+> attach(Boston)
+> mu.hat=mean(medv)
+> mu.hat
+[1] 22.53281
+```
+
+$\hat\mu=22.53$.
+
+**(b)**
+
+```R
+> se.hat=sd(medv)/sqrt(dim(Boston)[1])
+> se.hat
+[1] 0.4088611
+```
+
+$\hat{se(\hat\mu)}=0.409$.
+
+Interpret this result.
+
+**(c)**
+
+```R
+> set.seed(1)
+> boot.fn=function(data, index) {}
+> boot.fn=function(data, index) {
++ mu=mean(data[index])
++ return(mu)
++ }
+> boot(medv, boot.fn, 1000)
+```
+
+output:
+
+```R
+ORDINARY NONPARAMETRIC BOOTSTRAP
+
+
+Call:
+boot(data = medv, statistic = boot.fn, R = 1000)
+
+
+Bootstrap Statistics :
+    original      bias    std. error
+t1* 22.53281 0.008517589   0.4119374
+```
+
+It can be seen from above that the standard error got from bootstrap is 0.412, which is different but close to the answer got in (b). 
+
+**(d)**
+
+```R
+> t.test(medv)
+```
+
+output: 
+
+```R
+	One Sample t-test
+
+data:  medv
+t = 55.111, df = 505, p-value < 2.2e-16
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ 21.72953 23.33608
+sample estimates:
+mean of x 
+ 22.53281 
+```
+
+```R
+> CI.mu.hat <- c(22.53281 - 2 * 0.4119, 22.53281 + 2 * 0.4119)
+> CI.mu.hat
+```
+
+output:
+
+```R
+[1] 21.70901 23.35661
+```
+
+The 95% confidence intercal for the mean of `medv` is different but close to the results obtained by ` t.test`. 
+
+**(e)**
+
+```R
+> med.hat=median(medv)
+> med.hat
+[1] 21.2
+```
+
+$\hat\mu_{med}=21.2$.
+
+**(f)**
+
+```R
+> boot.fn=function(data, index) {
++ mu=median(data[index])
++ return(mu)
++ }
+> boot(medv, boot.fn, 1000)
+```
+
+output: 
+
+```R
+ORDINARY NONPARAMETRIC BOOTSTRAP
+
+
+Call:
+boot(data = medv, statistic = boot.fn, R = 1000)
+
+
+Bootstrap Statistics :
+    original  bias    std. error
+t1*     21.2 -0.0098   0.3874004
+```
+
+The estimated median value, which is 21.2, is equal to the value obtained in (e), while the standard error, which is 0.3874, is relatively small compared to (c).
+
+**(g)**
+
+```R
+> mu0.1.hat=quantile(medv, c(0.1))
+> mu0.1.hat
+  10% 
+12.75 
+```
+
+$\hat\mu_{0.1}=12.75$.
+
+**(h)**
+
+```R
+> boot.fn=function(data, index) {
++ mu=quantile(data[index], c(0.1))
++ return(mu)
++ }
+> boot(medv, boot.fn, 1000)
+```
+
+output:
+
+```R
+Bootstrap Statistics :
+    original  bias    std. error
+t1*    12.75  0.0261   0.4912231
+```
+
+The estimated tenth percentile value, which is 12.75, is equal to the value obtained in (g), while the standard error, which is 0.4912, is relatively small compared to percentile value.
