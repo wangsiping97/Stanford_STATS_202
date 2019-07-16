@@ -418,7 +418,49 @@ From the percentage of correct predictions above, we can conclude that the logis
 
 **(i)**
 
+Using a cubic model: 
 
+```R
+> fit.glm=glm(Direction~Lag2+I(Lag2^2)+I(Lag2^3),data=Weekly,subset=train, family="binomial")
+> probs=predict(fit.glm, Weekly.20092010, type="response")
+> pred.glm=rep("Down", length(probs))
+> pred.glm[probs>0.5]="Up"
+> table(pred.glm, Direction.20092010)
+```
+
+output:
+
+```R
+        Direction.20092010
+pred.glm Down Up
+    Down   13 14
+    Up     30 47
+```
+
+The overall fraction of correct predictions for the held out data is:
+$$
+\frac{13+47}{104}=57.69\%.
+$$
+Using $KNN$ method wirh $k=10$. 
+
+```R
+> pred.knn2=knn(train.X, test.X, train.Direction, k=10)
+> table(pred.knn2, Direction.20092010)
+```
+
+output: 
+
+```R
+         Direction.20092010
+pred.knn2 Down Up
+     Down   16 17
+     Up     27 44
+```
+
+The overall fraction of correct predictions for the held out data is:
+$$
+\frac{16+44}{104}=57.69\%.
+$$
 
 ## Problem 6
 
@@ -780,9 +822,7 @@ $\hat\mu=22.53$.
 [1] 0.4088611
 ```
 
-$\hat{se(\hat\mu)}=0.409$.
-
-Interpret this result.
+$\hat{se(\hat\mu)}=0.409$, which reflects the accuracy of the estimate of $\mu$.
 
 **(c)**
 
